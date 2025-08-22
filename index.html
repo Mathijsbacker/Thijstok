@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThijsTok</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: 'Roboto', sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 400px;
+      max-height: 100vh;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      overflow: hidden;
+      background: #111;
+    }
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      cursor: pointer;
+    }
+    .top-bar {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      text-shadow: 0 0 10px black;
+    }
+    .controls {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      font-size: 24px;
+    }
+    .control-btn {
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      padding: 10px;
+      transition: transform 0.2s, background 0.2s;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .control-btn:hover {
+      transform: scale(1.2);
+      background: rgba(255,255,255,0.2);
+    }
+    .like-count {
+      font-size: 16px;
+      margin-top: 5px;
+      color: #ff4d6d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="video-container" id="videoContainer">
+    <div class="top-bar">ThijsTok 🎬</div>
+    <video id="thijsVideo" autoplay playsinline></video>
+    <div class="controls">
+      <div class="control-btn" id="downloadBtn">⬇</div>
+      <div class="control-btn" id="likeBtn">❤️</div>
+      <div class="like-count" id="likeCount">0k</div>
+    </div>
+  </div>
+
+  <script>
+    const videos = [
+      "videos/thijs1.mp4",
+      "videos/thijs2.mp4",
+      "videos/thijs3.mp4",
+      "videos/thijs4.mp4",
+      "videos/thijs5.mp4",
+      "videos/thijs6.mp4"
+    ];
+
+    const videoElement = document.getElementById("thijsVideo");
+    const likeBtn = document.getElementById("likeBtn");
+    const likeCount = document.getElementById("likeCount");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    function getRandomLikes() {
+      return Math.floor(Math.random() * 999 + 1) + 'k';
+    }
+
+    function loadRandomVideo() {
+      const randomIndex = Math.floor(Math.random() * videos.length);
+      const selectedVideo = videos[randomIndex];
+      videoElement.src = selectedVideo;
+      videoElement.muted = false;
+      videoElement.play();
+      likeCount.textContent = getRandomLikes();
+
+      downloadBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = selectedVideo;
+        a.download = selectedVideo.split('/').pop();
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+    }
+
+    loadRandomVideo();
+
+    // Pauzeer/Play bij klikken op video
+    videoElement.addEventListener('click', () => {
+      if(videoElement.paused){
+        videoElement.play();
+      } else {
+        videoElement.pause();
+      }
+    });
+
+    // Swipe omhoog = nieuwe random video
+    let startY = 0;
+    window.addEventListener("touchstart", e => { startY = e.touches[0].clientY; });
+    window.addEventListener("touchend", e => {
+      let endY = e.changedTouches[0].clientY;
+      if (startY - endY > 50) loadRandomVideo();
+    });
+
+    // Pijltjes toetsen
+    window.addEventListener('keydown', e => {
+      if(e.key === 'ArrowUp' || e.key === 'ArrowDown') loadRandomVideo();
+    });
+
+    // Middenmuis wiel (minder gevoelig)
+    let wheelCooldown = false;
+    window.addEventListener('wheel', e => {
+      if(e.deltaY !== 0 && !wheelCooldown){
+        loadRandomVideo();
+        wheelCooldown = true;
+        setTimeout(() => wheelCooldown = false, 200);
+      }
+    });
+
+    // Like knop
+    likeBtn.addEventListener("click", () => {
+      likeCount.textContent = getRandomLikes();
+    });
+  </script>
+</body>
+</html>
